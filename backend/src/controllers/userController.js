@@ -51,3 +51,42 @@ export const loginUser = async (req, res) => {
         res.status(500).json({ message: "Something went wrong" });
     }
 };
+
+// Get logged-in user profile
+export const getUserProfile = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).select("-password");
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.json(user);
+    } catch (error) {
+        res.status(500).json({ message: "Something went wrong" });
+    }
+};
+
+// Update user skills and interests
+export const updateUserSkills = async (req, res) => {
+    try{
+        const { skills, interests } = req.body;
+
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        user.skills = skills || user.skills;
+        user.interests = interests || user.interests;
+
+        await user.save();
+
+        res.json({ 
+            message: "User skills and interests updated successfully",
+            updatedUser: user,
+         });
+    } catch (error) {
+        res.status(500).json({ message: "Something went wrong" });
+    }
+};
